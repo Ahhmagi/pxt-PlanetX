@@ -21,6 +21,7 @@ namespace PlanetX_IOT {
 
     let wifi_connected = false;
     const msgHandlerMap: MsgHandler = {};
+    let serialHandlerInitialized = false
 
     /*
     * on serial received data
@@ -89,6 +90,23 @@ namespace PlanetX_IOT {
         return waitForResponse(key, wait)
     }
 
+    export function sendHttpRequest(host: string, port: number, queryString: string, key: string = null, wait: number = 1000) {
+        if (sendRequest(`AT+CIPSTART="TCP","${host}",${port}`, "CONNECT") == null) {
+            return null
+        }
+
+        if (sendRequest(`AT+CIPSEND=${queryString.length + 2}`, "OK") == null) {
+            return null
+        }
+
+        if (key == null) {
+            sendAT(queryString)
+            return null
+        }
+
+        return sendRequest(queryString, key, wait)
+    }
+
     export function resetEsp8266() {
         sendRequest("AT+RESTORE", "ready", 2000) // restore to factory settings
         sendRequest("AT+RST", "ready", 2000) // rest
@@ -98,14 +116,16 @@ namespace PlanetX_IOT {
         }
     }
 
-    /**
-     * Initialize ESP8266 module
-     */
-    //% block="set wifi module %Rjpin Baud rate %baudrate"
-    //% ssid.defl=your_ssid
-    //% pw.defl=your_password weight=100
-    //% color=#EA5532
-    export function initWIFI(Rjpin: DigitalRJPin, baudrate: BaudRate) {
+    export function resetEsp8266V10() {
+        sendAT("AT+RESTORE", 1000) // restore to factory settings
+        sendAT("AT+RST", 1000) // rest
+        serial.readString()
+        sendAT("AT+CWMODE=1", 500) // set to STA mode
+        sendAT("AT+SYSTIMESTAMP=1634953609130", 100) // set local timestamp
+        sendAT(`AT+CIPSNTPCFG=1,8,"ntp1.aliyun.com","0.pool.ntp.org","time.google.com"`, 100)
+    }
+
+    export function initSerialForWifi(Rjpin: DigitalRJPin, baudrate: BaudRate) {
         let pin_tx = SerialPin.P1
         let pin_rx = SerialPin.P8
         switch (Rjpin) {
@@ -126,16 +146,32 @@ namespace PlanetX_IOT {
                 pin_rx = SerialPin.P15
                 break;
         }
-        serial.redirect(pin_tx, pin_rx, BaudRate.BaudRate115200)
+        serial.redirect(pin_tx, pin_rx, baudrate)
         serial.setTxBufferSize(128)
         serial.setRxBufferSize(128)
-        serial.onDataReceived(serial.delimiters(Delimiters.NewLine), serialDataHandler)
+        if (!serialHandlerInitialized) {
+            serial.onDataReceived(serial.delimiters(Delimiters.NewLine), serialDataHandler)
+            serialHandlerInitialized = true
+        }
+    }
+
+    /**
+     * Initialize ESP8266 module
+     */
+    //% deprecated=true blockHidden=true
+    //% block="set wifi module %Rjpin Baud rate %baudrate"
+    //% ssid.defl=your_ssid
+    //% pw.defl=your_password weight=100
+    //% color=#EA5532
+    export function initWIFI(Rjpin: DigitalRJPin, baudrate: BaudRate) {
+        initSerialForWifi(Rjpin, baudrate)
         resetEsp8266()
     }
 
     /**
      * connect to Wifi router
      */
+    //% deprecated=true blockHidden=true
     //% block="connect Wifi SSID = %ssid|KEY = %pw"
     //% ssid.defl=your_ssid
     //% pw.defl=your_pwd weight=95
@@ -159,6 +195,7 @@ namespace PlanetX_IOT {
      * Warning: Deprecated.
      * Check if ESP8266 successfully connected to Wifi
      */
+    //% deprecated=true blockHidden=true
     //% block="Wifi connected %State" weight=70
     //% color=#EA5532
     export function wifiState(state: boolean) {
@@ -290,6 +327,7 @@ namespace PlanetX_IOT {
     /**
      * Connect to ThingSpeak
      */
+    //% deprecated=true blockHidden=true
     //% block="connect thingspeak"
     //% write_api_key.defl=your_write_api_key
     //% subcategory="ThingSpeak" weight=90
@@ -301,6 +339,7 @@ namespace PlanetX_IOT {
     /**
      * Connect to ThingSpeak and set data.
      */
+    //% deprecated=true blockHidden=true
     //% block="set data to send ThingSpeak | Write API key = %write_api_key|Field 1 = %n1||Field 2 = %n2|Field 3 = %n3|Field 4 = %n4|Field 5 = %n5|Field 6 = %n6|Field 7 = %n7|Field 8 = %n8"
     //% write_api_key.defl=your_write_api_key
     //% expandableArgumentMode="enabled"
@@ -331,6 +370,7 @@ namespace PlanetX_IOT {
     /**
      * upload data. It would not upload anything if it failed to connect to Wifi or ThingSpeak.
      */
+    //% deprecated=true blockHidden=true
     //% block="Upload data to ThingSpeak"
     //% subcategory="ThingSpeak" weight=80
     //% color=#EA5532
@@ -342,11 +382,216 @@ namespace PlanetX_IOT {
     /*
      * Check if ESP8266 successfully connected to ThingSpeak
      */
+    //% deprecated=true blockHidden=true
     //% block="ThingSpeak connected %State"
     //% subcategory="ThingSpeak" weight=65
     //% color=#EA5532
     export function thingSpeakState(state: boolean) {
         return thingspeak_connected === state
+    }
+
+    let wifi_connected_v14 = false
+    let thingspeak_connected_v14 = false
+    let thingSpeakDataV14 = ""
+
+    let wifi_connected_v10 = false
+    let thingspeak_connected_v10 = false
+    let thingSpeakDataV10 = ""
+
+    /**
+     * Initialize WiFi module for v1.4+
+     */
+    //% subcategory="v1.4" weight=120
+    //% blockId=initWIFIV14 block="set wifi module %Rjpin Baud rate %baudrate"
+    //% color=#EA5532
+    export function initWIFIV14(Rjpin: DigitalRJPin, baudrate: BaudRate) {
+        wifi_connected_v14 = false
+        thingspeak_connected_v14 = false
+        initSerialForWifi(Rjpin, baudrate)
+        resetEsp8266()
+    }
+
+    /**
+     * Connect to WiFi router with WiFi module v1.4+
+     */
+    //% subcategory="v1.4" weight=115
+    //% blockId=connectWifiV14 block="connect Wifi SSID = %ssid|KEY = %pw"
+    //% ssid.defl=your_ssid
+    //% pw.defl=your_pwd
+    //% color=#EA5532
+    export function connectWifiV14(ssid: string, pw: string) {
+        registerMsgHandler("WIFI DISCONNECT", () => wifi_connected_v14 = false)
+        registerMsgHandler("WIFI GOT IP", () => wifi_connected_v14 = true)
+        let retryCount = 3
+        while (true) {
+            sendAT(`AT+CWJAP="${ssid}","${pw}"`)
+            pauseUntil(() => wifi_connected_v14, 3500)
+            if (!wifi_connected_v14 && --retryCount > 0) {
+                resetEsp8266()
+            } else {
+                break
+            }
+        }
+    }
+
+    //% subcategory="v1.4" weight=110
+    //% blockId=wifiStateV14 block="Wifi connected %State"
+    //% color=#EA5532
+    export function wifiStateV14(state: boolean) {
+        return wifi_connected_v14 === state
+    }
+
+    //% subcategory="v1.4" weight=105
+    //% blockId=connectThingSpeakV14 block="connect thingspeak"
+    //% color=#EA5532
+    export function connectThingSpeakV14() {
+        thingspeak_connected_v14 = wifi_connected_v14
+    }
+
+    //% subcategory="v1.4" weight=100
+    //% blockId=setThingSpeakDataV14 block="set data to send ThingSpeak | Write API key = %write_api_key|Field 1 = %n1||Field 2 = %n2|Field 3 = %n3|Field 4 = %n4|Field 5 = %n5|Field 6 = %n6|Field 7 = %n7|Field 8 = %n8"
+    //% write_api_key.defl=your_write_api_key
+    //% expandableArgumentMode="enabled"
+    //% color=#EA5532
+    export function setDataV14(write_api_key: string, n1: number = 0, n2: number = 0, n3: number = 0, n4: number = 0, n5: number = 0, n6: number = 0, n7: number = 0, n8: number = 0) {
+        thingSpeakDataV14 = "AT+HTTPCLIENT=2,0,\"http://api.thingspeak.com/update?api_key="
+            + write_api_key
+            + "&field1="
+            + n1
+            + "&field2="
+            + n2
+            + "&field3="
+            + n3
+            + "&field4="
+            + n4
+            + "&field5="
+            + n5
+            + "&field6="
+            + n6
+            + "&field7="
+            + n7
+            + "&field8="
+            + n8
+            + "\",,,1"
+    }
+
+    //% subcategory="v1.4" weight=95
+    //% blockId=uploadThingSpeakDataV14 block="Upload data to ThingSpeak"
+    //% color=#EA5532
+    export function uploadDataV14() {
+        if (!wifi_connected_v14 || thingSpeakDataV14.length == 0) {
+            thingspeak_connected_v14 = false
+            return
+        }
+        thingspeak_connected_v14 = sendRequest(thingSpeakDataV14, "http", 2000) != null
+        basic.pause(200)
+    }
+
+    //% subcategory="v1.4" weight=90
+    //% blockId=thingSpeakStateV14 block="ThingSpeak connected %State"
+    //% color=#EA5532
+    export function thingSpeakStateV14(state: boolean) {
+        return thingspeak_connected_v14 === state
+    }
+
+    /**
+     * Initialize WiFi module for v1.0
+     */
+    //% subcategory="v1.0" weight=80
+    //% blockId=initWIFIV10 block="set wifi module %Rjpin Baud rate %baudrate"
+    //% color=#EA5532
+    export function initWIFIV10(Rjpin: DigitalRJPin, baudrate: BaudRate) {
+        wifi_connected_v10 = false
+        thingspeak_connected_v10 = false
+        initSerialForWifi(Rjpin, baudrate)
+        sendAT("ATE0", 100)
+        resetEsp8266V10()
+    }
+
+    /**
+     * Connect to WiFi router with WiFi module v1.0
+     */
+    //% subcategory="v1.0" weight=75
+    //% blockId=connectWifiV10 block="connect Wifi SSID = %ssid|KEY = %pw"
+    //% ssid.defl=your_ssid
+    //% pw.defl=your_pwd
+    //% color=#EA5532
+    export function connectWifiV10(ssid: string, pw: string) {
+        registerMsgHandler("WIFI DISCONNECT", () => wifi_connected_v10 = false)
+        registerMsgHandler("WIFI GOT IP", () => wifi_connected_v10 = true)
+        let retryCount = 3
+        while (true) {
+            sendAT(`AT+CWJAP="${ssid}","${pw}"`)
+            pauseUntil(() => wifi_connected_v10, 3500)
+            if (!wifi_connected_v10 && --retryCount > 0) {
+                resetEsp8266V10()
+            } else {
+                break
+            }
+        }
+    }
+
+    //% subcategory="v1.0" weight=70
+    //% blockId=wifiStateV10 block="Wifi connected %State"
+    //% color=#EA5532
+    export function wifiStateV10(state: boolean) {
+        return wifi_connected_v10 === state
+    }
+
+    //% subcategory="v1.0" weight=65
+    //% blockId=connectThingSpeakV10 block="connect thingspeak"
+    //% color=#EA5532
+    export function connectThingSpeakV10() {
+        if (!wifi_connected_v10) {
+            thingspeak_connected_v10 = false
+            return
+        }
+        thingspeak_connected_v10 = sendRequest(`AT+CIPSTART="TCP","${THINGSPEAK_HOST}",${THINGSPEAK_PORT}`, "CONNECT", 2000) != null
+        basic.pause(100)
+    }
+
+    //% subcategory="v1.0" weight=60
+    //% blockId=setThingSpeakDataV10 block="set data to send ThingSpeak | Write API key = %write_api_key|Field 1 = %n1||Field 2 = %n2|Field 3 = %n3|Field 4 = %n4|Field 5 = %n5|Field 6 = %n6|Field 7 = %n7|Field 8 = %n8"
+    //% write_api_key.defl=your_write_api_key
+    //% expandableArgumentMode="enabled"
+    //% color=#EA5532
+    export function setDataV10(write_api_key: string, n1: number = 0, n2: number = 0, n3: number = 0, n4: number = 0, n5: number = 0, n6: number = 0, n7: number = 0, n8: number = 0) {
+        thingSpeakDataV10 = "GET /update?api_key="
+            + write_api_key
+            + "&field1="
+            + n1
+            + "&field2="
+            + n2
+            + "&field3="
+            + n3
+            + "&field4="
+            + n4
+            + "&field5="
+            + n5
+            + "&field6="
+            + n6
+            + "&field7="
+            + n7
+            + "&field8="
+            + n8
+    }
+
+    //% subcategory="v1.0" weight=55
+    //% blockId=uploadThingSpeakDataV10 block="Upload data to ThingSpeak"
+    //% color=#EA5532
+    export function uploadDataV10() {
+        if (!wifi_connected_v10 || !thingspeak_connected_v10 || thingSpeakDataV10.length == 0) {
+            thingspeak_connected_v10 = false
+            return
+        }
+        thingspeak_connected_v10 = sendHttpRequest(THINGSPEAK_HOST, THINGSPEAK_PORT, thingSpeakDataV10, "http", 2000) != null
+    }
+
+    //% subcategory="v1.0" weight=50
+    //% blockId=thingSpeakStateV10 block="ThingSpeak connected %State"
+    //% color=#EA5532
+    export function thingSpeakStateV10(state: boolean) {
+        return thingspeak_connected_v10 === state
     }
 
 }
