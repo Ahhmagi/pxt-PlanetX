@@ -1,5 +1,6 @@
-//% color=#4ca630 icon="\uf1eb" 
+//% color=#4ca630 icon="\uf1eb"
 //% block="PlanetX_IoT" blockId="PlanetX_IoT"
+//% groups=['V1.4', 'V1.0']
 namespace PlanetX_IOT {
 
     export enum DigitalRJPin {
@@ -401,7 +402,7 @@ namespace PlanetX_IOT {
     /**
      * Initialize WiFi module for v1.4+
      */
-    //% subcategory="v1.4" weight=120
+    //% subcategory="ThingSpeak" group="V1.4" weight=120
     //% blockId=initWIFIV14 block="set wifi module %Rjpin Baud rate %baudrate"
     //% color=#EA5532
     export function initWIFIV14(Rjpin: DigitalRJPin, baudrate: BaudRate) {
@@ -414,7 +415,7 @@ namespace PlanetX_IOT {
     /**
      * Connect to WiFi router with WiFi module v1.4+
      */
-    //% subcategory="v1.4" weight=115
+    //% subcategory="ThingSpeak" group="V1.4" weight=115
     //% blockId=connectWifiV14 block="connect Wifi SSID = %ssid|KEY = %pw"
     //% ssid.defl=your_ssid
     //% pw.defl=your_pwd
@@ -434,21 +435,21 @@ namespace PlanetX_IOT {
         }
     }
 
-    //% subcategory="v1.4" weight=110
+    //% subcategory="ThingSpeak" group="V1.4" weight=110
     //% blockId=wifiStateV14 block="Wifi connected %State"
     //% color=#EA5532
     export function wifiStateV14(state: boolean) {
         return wifi_connected_v14 === state
     }
 
-    //% subcategory="v1.4" weight=105
+    //% subcategory="ThingSpeak" group="V1.4" weight=105
     //% blockId=connectThingSpeakV14 block="connect thingspeak"
     //% color=#EA5532
     export function connectThingSpeakV14() {
         thingspeak_connected_v14 = wifi_connected_v14
     }
 
-    //% subcategory="v1.4" weight=100
+    //% subcategory="ThingSpeak" group="V1.4" weight=100
     //% blockId=setThingSpeakDataV14 block="set data to send ThingSpeak | Write API key = %write_api_key|Field 1 = %n1||Field 2 = %n2|Field 3 = %n3|Field 4 = %n4|Field 5 = %n5|Field 6 = %n6|Field 7 = %n7|Field 8 = %n8"
     //% write_api_key.defl=your_write_api_key
     //% expandableArgumentMode="enabled"
@@ -475,7 +476,7 @@ namespace PlanetX_IOT {
             + "\",,,1"
     }
 
-    //% subcategory="v1.4" weight=95
+    //% subcategory="ThingSpeak" group="V1.4" weight=95
     //% blockId=uploadThingSpeakDataV14 block="Upload data to ThingSpeak"
     //% color=#EA5532
     export function uploadDataV14() {
@@ -487,7 +488,7 @@ namespace PlanetX_IOT {
         basic.pause(200)
     }
 
-    //% subcategory="v1.4" weight=90
+    //% subcategory="ThingSpeak" group="V1.4" weight=90
     //% blockId=thingSpeakStateV14 block="ThingSpeak connected %State"
     //% color=#EA5532
     export function thingSpeakStateV14(state: boolean) {
@@ -497,7 +498,7 @@ namespace PlanetX_IOT {
     /**
      * Initialize WiFi module for v1.0
      */
-    //% subcategory="v1.0" weight=80
+    //% subcategory="ThingSpeak" group="V1.0" weight=80
     //% blockId=initWIFIV10 block="set wifi module %Rjpin Baud rate %baudrate"
     //% color=#EA5532
     export function initWIFIV10(Rjpin: DigitalRJPin, baudrate: BaudRate) {
@@ -511,7 +512,7 @@ namespace PlanetX_IOT {
     /**
      * Connect to WiFi router with WiFi module v1.0
      */
-    //% subcategory="v1.0" weight=75
+    //% subcategory="ThingSpeak" group="V1.0" weight=75
     //% blockId=connectWifiV10 block="connect Wifi SSID = %ssid|KEY = %pw"
     //% ssid.defl=your_ssid
     //% pw.defl=your_pwd
@@ -531,14 +532,14 @@ namespace PlanetX_IOT {
         }
     }
 
-    //% subcategory="v1.0" weight=70
+    //% subcategory="ThingSpeak" group="V1.0" weight=70
     //% blockId=wifiStateV10 block="Wifi connected %State"
     //% color=#EA5532
     export function wifiStateV10(state: boolean) {
         return wifi_connected_v10 === state
     }
 
-    //% subcategory="v1.0" weight=65
+    //% subcategory="ThingSpeak" group="V1.0" weight=65
     //% blockId=connectThingSpeakV10 block="connect thingspeak"
     //% color=#EA5532
     export function connectThingSpeakV10() {
@@ -550,7 +551,7 @@ namespace PlanetX_IOT {
         basic.pause(100)
     }
 
-    //% subcategory="v1.0" weight=60
+    //% subcategory="ThingSpeak" group="V1.0" weight=60
     //% blockId=setThingSpeakDataV10 block="set data to send ThingSpeak | Write API key = %write_api_key|Field 1 = %n1||Field 2 = %n2|Field 3 = %n3|Field 4 = %n4|Field 5 = %n5|Field 6 = %n6|Field 7 = %n7|Field 8 = %n8"
     //% write_api_key.defl=your_write_api_key
     //% expandableArgumentMode="enabled"
@@ -576,7 +577,7 @@ namespace PlanetX_IOT {
             + n8
     }
 
-    //% subcategory="v1.0" weight=55
+    //% subcategory="ThingSpeak" group="V1.0" weight=55
     //% blockId=uploadThingSpeakDataV10 block="Upload data to ThingSpeak"
     //% color=#EA5532
     export function uploadDataV10() {
@@ -587,7 +588,7 @@ namespace PlanetX_IOT {
         thingspeak_connected_v10 = sendHttpRequest(THINGSPEAK_HOST, THINGSPEAK_PORT, thingSpeakDataV10, "http", 2000) != null
     }
 
-    //% subcategory="v1.0" weight=50
+    //% subcategory="ThingSpeak" group="V1.0" weight=50
     //% blockId=thingSpeakStateV10 block="ThingSpeak connected %State"
     //% color=#EA5532
     export function thingSpeakStateV10(state: boolean) {
