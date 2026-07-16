@@ -243,5 +243,19 @@
     "{id:subcategory}Neopixel": "彩灯单元",
     "{id:subcategory}Sensor": "传感器单元",
     "{id:subcategory}ThingSpeak": "ThingSpeak",
-    "{id:subcategory}MQTT": "MQTT"
+    "{id:subcategory}MQTT": "MQTT",
+    "PlanetX_IOT.initWIFIV14|block": "设置 wifi 模块 %Rjpin 波特率 %baudrate",
+    "PlanetX_IOT.connectWifiV14|block": "连接 WIFI 无线网络 WIFI名称 = %ssid|WIFI密码 = %pw",
+    "PlanetX_IOT.wifiStateV14|block": "Wifi连接 %State",
+    "PlanetX_IOT.connectThingSpeakV14|block": "连接 ThingSpeak 平台",
+    "PlanetX_IOT.setDataV14|block": "设置发送到 ThingSpeak 平台的数据|写入 API key = %write_api_key|字段 1 = %n1||字段 2 = %n2|字段 3 = %n3|字段 4 = %n4|字段 5 = %n5|字段 6 = %n6|字段 7 = %n7|字段 8 = %n8",
+    "PlanetX_IOT.uploadDataV14|block": "上传数据到 ThingSpeak 平台",
+    "PlanetX_IOT.thingSpeakStateV14|block": "ThingSpeak 平台连接 %State",
+    "PlanetX_IOT.initWIFIV10|block": "设置 wifi 模块 %Rjpin 波特率 %baudrate",
+    "PlanetX_IOT.connectWifiV10|block": "连接 WIFI 无线网络 WIFI名称 = %ssid|WIFI密码 = %pw",
+    "PlanetX_IOT.wifiStateV10|block": "Wifi连接 %State",
+    "PlanetX_IOT.connectThingSpeakV10|block": "连接 ThingSpeak 平台",
+    "PlanetX_IOT.setDataV10|block": "设置发送到 ThingSpeak 平台的数据|写入 API key = %write_api_key|字段 1 = %n1||字段 2 = %n2|字段 3 = %n3|字段 4 = %n4|字段 5 = %n5|字段 6 = %n6|字段 7 = %n7|字段 8 = %n8",
+    "PlanetX_IOT.uploadDataV10|block": "上传数据到 ThingSpeak 平台",
+    "PlanetX_IOT.thingSpeakStateV10|block": "ThingSpeak 平台连接 %State"
 }

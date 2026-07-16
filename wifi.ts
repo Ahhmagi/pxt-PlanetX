@@ -500,7 +500,7 @@ namespace PlanetX_IOT {
      */
     //% subcategory="ThingSpeak" group="V1.0" weight=80
     //% blockId=initWIFIV10 block="set wifi module %Rjpin Baud rate %baudrate"
-    //% color=#EA5532
+    //% color=#E66A45
     export function initWIFIV10(Rjpin: DigitalRJPin, baudrate: BaudRate) {
         wifi_connected_v10 = false
         thingspeak_connected_v10 = false
@@ -516,7 +516,7 @@ namespace PlanetX_IOT {
     //% blockId=connectWifiV10 block="connect Wifi SSID = %ssid|KEY = %pw"
     //% ssid.defl=your_ssid
     //% pw.defl=your_pwd
-    //% color=#EA5532
+    //% color=#E66A45
     export function connectWifiV10(ssid: string, pw: string) {
         registerMsgHandler("WIFI DISCONNECT", () => wifi_connected_v10 = false)
         registerMsgHandler("WIFI GOT IP", () => wifi_connected_v10 = true)
@@ -534,14 +534,14 @@ namespace PlanetX_IOT {
 
     //% subcategory="ThingSpeak" group="V1.0" weight=70
     //% blockId=wifiStateV10 block="Wifi connected %State"
-    //% color=#EA5532
+    //% color=#E66A45
     export function wifiStateV10(state: boolean) {
         return wifi_connected_v10 === state
     }
 
     //% subcategory="ThingSpeak" group="V1.0" weight=65
     //% blockId=connectThingSpeakV10 block="connect thingspeak"
-    //% color=#EA5532
+    //% color=#E66A45
     export function connectThingSpeakV10() {
         if (!wifi_connected_v10) {
             thingspeak_connected_v10 = false
@@ -555,7 +555,7 @@ namespace PlanetX_IOT {
     //% blockId=setThingSpeakDataV10 block="set data to send ThingSpeak | Write API key = %write_api_key|Field 1 = %n1||Field 2 = %n2|Field 3 = %n3|Field 4 = %n4|Field 5 = %n5|Field 6 = %n6|Field 7 = %n7|Field 8 = %n8"
     //% write_api_key.defl=your_write_api_key
     //% expandableArgumentMode="enabled"
-    //% color=#EA5532
+    //% color=#E66A45
     export function setDataV10(write_api_key: string, n1: number = 0, n2: number = 0, n3: number = 0, n4: number = 0, n5: number = 0, n6: number = 0, n7: number = 0, n8: number = 0) {
         thingSpeakDataV10 = "GET /update?api_key="
             + write_api_key
@@ -579,7 +579,7 @@ namespace PlanetX_IOT {
 
     //% subcategory="ThingSpeak" group="V1.0" weight=55
     //% blockId=uploadThingSpeakDataV10 block="Upload data to ThingSpeak"
-    //% color=#EA5532
+    //% color=#E66A45
     export function uploadDataV10() {
         if (!wifi_connected_v10 || !thingspeak_connected_v10 || thingSpeakDataV10.length == 0) {
             thingspeak_connected_v10 = false
@@ -590,7 +590,7 @@ namespace PlanetX_IOT {
 
     //% subcategory="ThingSpeak" group="V1.0" weight=50
     //% blockId=thingSpeakStateV10 block="ThingSpeak connected %State"
-    //% color=#EA5532
+    //% color=#E66A45
     export function thingSpeakStateV10(state: boolean) {
         return thingspeak_connected_v10 === state
     }
